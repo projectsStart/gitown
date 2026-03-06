@@ -131,7 +131,7 @@ function App() {
             </div>
             <div className="social-buttons">
               <a
-                href="https://x.com/projectsStart"
+                href="https://x.com/Gitown_"
                 target="_blank"
                 rel="noreferrer"
                 className="social-button social-x"
