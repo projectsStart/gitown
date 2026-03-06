@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# gitown – Pixel commit village
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+gitown turns your GitHub repository activity into a tiny pixel village.  
+Each **commit** becomes a **house** in the town, and contributors can explore what everyone has shipped just by looking at the map.
 
-Currently, two official plugins are available:
+## How contributions appear in the town
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Each commit = one house**
+  - The app calls the GitHub API for `projectsStart/gitown` and reads the most recent commits.
+  - For every commit, a free grass tile is turned into a house sprite.
+  - When the grid is full, new commits simply do not get a new house (you can change the grid size in `App.tsx` if you want more).
 
-## React Compiler
+- **Author and message**
+  - Under each house you will see the **author name** in tiny pixel text.
+  - If you click on a house with a commit attached, a panel opens showing:
+    - The commit author.
+    - The full commit message.
+    - A link to open that commit on GitHub.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Recent commits panel**
+  - On the right side there is a “Recent commits” list.
+  - Each entry shows `author · message` and links directly to the commit on GitHub.
 
-## Expanding the ESLint configuration
+## How to contribute
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Fork or clone the repo**
+   - Fork `projectsStart/gitown` to your own account, or clone it locally:
+   - `git clone https://github.com/projectsStart/gitown.git`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Create a branch**
+   - Use a descriptive branch name for your change:
+   - `git checkout -b feat/add-new-building`
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3. **Make a meaningful change**
+   - Add features, tweak visuals, improve copy, or fix bugs.
+   - Follow conventional-style commit messages if possible, for example:
+     - `feat: add river tiles`
+     - `fix: center hero video on mobile`
+     - `chore: clean up town grid types`
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+4. **Commit your work**
+   - Stage and commit your changes:
+   - `git add .`
+   - `git commit -m "feat: describe your change here"`
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+5. **Push and open a pull request**
+   - `git push origin your-branch-name`
+   - Open a PR against `projectsStart/gitown` with a short explanation of what you built.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Once the PR is merged (or commits land on the default branch), your commits will be picked up by the app and **new houses will appear** in the village.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Running the project locally
+
+- **Install dependencies**
+  - `npm install`
+
+- **Start the dev server**
+  - `npm run dev`
+  - Open the URL printed in the terminal (usually `http://localhost:5173`).
+
+- **Build for production**
+  - `npm run build`
+
+## Customising the mapping from commits to town
+
+- **Grid size and layout**
+  - The size of the town grid and the initial layout of paths and starter houses live in `App.tsx`.
+  - You can adjust `GRID_SIZE` and the `STARTER_HOUSES` array to shape the town.
+
+- **GitHub repository target**
+  - By default the app points to `projectsStart/gitown`.
+  - If you want to visualise another repo, change `GITHUB_OWNER` and `GITHUB_REPO` in `App.tsx`.
+
+- **Art assets**
+  - The grass and house sprites are in `public/aseets/ground.jpg` and `public/aseets/house.png`.
+  - Replacing these files with your own pixel art is the quickest way to reskin the town.
+
