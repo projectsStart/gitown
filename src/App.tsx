@@ -20,25 +20,33 @@ type CommitInfo = {
 
 const GRID_SIZE = 10
 
-const baseGrid: Tile[] = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, i) => ({
-  id: i,
-  type: 'grass',
-}))
+const STARTER_HOUSES = [12, 17, 66, 73]
+
+const createBaseTown = (): Tile[] => {
+  const mid = Math.floor(GRID_SIZE / 2)
+  return Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, i) => {
+    const isPath = i % GRID_SIZE === mid
+    const isStarterHouse = STARTER_HOUSES.includes(i)
+    const type: TileType = isStarterHouse ? 'house' : isPath ? 'path' : 'grass'
+    return {
+      id: i,
+      type,
+    }
+  })
+}
+
+const baseGrid: Tile[] = createBaseTown()
 
 // Configure your GitHub repo here
 const GITHUB_OWNER = 'projectsStart'
 const GITHUB_REPO = 'gitown'
 
 function App() {
-  const [grid, setGrid] = useState<Tile[]>(() => {
-    const mid = Math.floor(GRID_SIZE / 2)
-    return baseGrid.map((tile) =>
-      tile.id % GRID_SIZE === mid ? { ...tile, type: 'path' } : tile,
-    )
-  })
+  const [grid, setGrid] = useState<Tile[]>(() => createBaseTown())
   const [commits, setCommits] = useState<CommitInfo[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedCommit, setSelectedCommit] = useState<CommitInfo | null>(null)
 
   useEffect(() => {
     fetchCommits()
@@ -73,11 +81,7 @@ function App() {
         .filter((t) => t.type === 'grass')
         .map((t) => t.id)
 
-      const nextGrid = baseGrid.map((tile) =>
-        tile.id % GRID_SIZE === Math.floor(GRID_SIZE / 2)
-          ? { ...tile, type: 'path' }
-          : { ...tile },
-      )
+      const nextGrid = createBaseTown()
 
       mapped.slice(0, buildOrder.length).forEach((commit, index) => {
         const tileId = buildOrder[index]
@@ -114,14 +118,36 @@ function App() {
           <div className="hero-glow" />
         </div>
         <header className="hero-text">
-          <h1 className="title">GITOWN</h1>
-          <p className="subtitle">
-            A living pixel village where every commit becomes a new house.
-          </p>
-          <p className="meta">
-            Point this demo to your GitHub repo and let your contributors
-            build the town together.
-          </p>
+          <div className="hero-topbar">
+            <div className="hero-title-block">
+              <h1 className="title">GITOWN</h1>
+              <p className="subtitle">
+                A living pixel village where every commit becomes a new house.
+              </p>
+              <p className="meta">
+                Point this demo to your GitHub repo and let your contributors
+                build the town together.
+              </p>
+            </div>
+            <div className="social-buttons">
+              <a
+                href="https://x.com/projectsStart"
+                target="_blank"
+                rel="noreferrer"
+                className="social-button social-x"
+              >
+                X
+              </a>
+              <a
+                href="https://github.com/projectsStart/gitown"
+                target="_blank"
+                rel="noreferrer"
+                className="social-button social-git"
+              >
+                GIT
+              </a>
+            </div>
+          </div>
         </header>
       </section>
 
@@ -135,14 +161,20 @@ function App() {
           </div>
           <div className="town-grid">
             {grid.map((tile) => (
-              <div
+              <button
                 key={tile.id}
+                type="button"
                 className={`tile tile-${tile.type}`}
                 title={
                   tile.commit
                     ? `${tile.commit.authorName}: ${tile.commit.message}`
                     : undefined
                 }
+                onClick={() => {
+                  if (tile.commit) {
+                    setSelectedCommit(tile.commit)
+                  }
+                }}
               >
                 {tile.type === 'house' && tile.commit && (
                   <div className="house-label">
@@ -151,9 +183,33 @@ function App() {
                     </span>
                   </div>
                 )}
-              </div>
+              </button>
             ))}
           </div>
+          {selectedCommit && (
+            <div className="selected-commit">
+              <div className="selected-commit-header">
+                <span className="selected-commit-label">Selected house</span>
+                <button
+                  type="button"
+                  className="selected-commit-close"
+                  onClick={() => setSelectedCommit(null)}
+                >
+                  ×
+                </button>
+              </div>
+              <p className="selected-commit-author">{selectedCommit.authorName}</p>
+              <p className="selected-commit-message">{selectedCommit.message}</p>
+              <a
+                href={selectedCommit.url}
+                target="_blank"
+                rel="noreferrer"
+                className="selected-commit-link"
+              >
+                View commit on GitHub
+              </a>
+            </div>
+          )}
         </section>
 
         <section className="panel panel-commit">
