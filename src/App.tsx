@@ -64,26 +64,6 @@ const createBaseTown = (): Tile[] => {
 
 const baseGrid: Tile[] = createBaseTown()
 
-// One demo commit per tier so buildings are visible before any API call
-const DEMO_TILES: Record<number, CommitInfo & { commitCount: number }> = {
-  // tile ids chosen on non-path, non-starter-house grass cells
-  0:  { sha: 'demo1', message: 'First commit', authorName: 'Newcomer',     url: '#', date: '', commitCount: 1  },
-  2:  { sha: 'demo2', message: 'Add features',  authorName: 'Contributor',  url: '#', date: '', commitCount: 4  },
-  4:  { sha: 'demo3', message: 'Big refactor',  authorName: 'Veteran',      url: '#', date: '', commitCount: 10 },
-  6:  { sha: 'demo4', message: 'Major release', authorName: 'Lead Dev',     url: '#', date: '', commitCount: 20 },
-  8:  { sha: 'demo5', message: 'Core architect',authorName: 'Architect',    url: '#', date: '', commitCount: 50 },
-}
-
-const createDemoTown = (): Tile[] => {
-  const base = createBaseTown()
-  Object.entries(DEMO_TILES).forEach(([idStr, commit]) => {
-    const id = Number(idStr)
-    const idx = base.findIndex((t) => t.id === id)
-    if (idx >= 0) base[idx] = { id, type: 'house', commit }
-  })
-  return base
-}
-
 // ─── Building builders by tier ────────────────────────────────────────────────
 
 function buildCottage(hash: number, bodyH: number): THREE.Group {
@@ -263,6 +243,9 @@ function buildTower(hash: number, bodyH: number): THREE.Group {
   tSpire.castShadow = true
   g.add(tSpire)
 
+  g.frustumCulled = false
+  g.traverse((c) => { c.frustumCulled = false })
+
   return g
 }
 
@@ -272,17 +255,16 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
 
   // Dark glass tones — blue/teal
   const glassColor = new THREE.Color().setHSL(0.58 + (hash % 5) * 0.03, 0.45, 0.22 + (hash % 4) * 0.04)
-  const glassMat = new THREE.MeshStandardMaterial({
+  const makeGlass = () => new THREE.MeshStandardMaterial({
     color: glassColor,
     roughness: 0.15,
     metalness: 0.7,
-    envMapIntensity: 1,
   })
-  const concreteMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.85, metalness: 0.1 })
+  const makeConcrete = () => new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.85, metalness: 0.1 })
 
   // Base podium (wide)
   const podiumH = bodyH * 0.12
-  const podium = new THREE.Mesh(new THREE.BoxGeometry(0.92, podiumH, 0.92), concreteMat)
+  const podium = new THREE.Mesh(new THREE.BoxGeometry(0.92, podiumH, 0.92), makeConcrete())
   podium.position.y = podiumH / 2
   podium.castShadow = true
   podium.receiveShadow = true
@@ -290,7 +272,7 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
 
   // Main shaft (narrower, very tall)
   const shaftH = bodyH * 0.72
-  const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.72, shaftH, 0.72), glassMat)
+  const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.72, shaftH, 0.72), makeGlass())
   shaft.position.y = podiumH + shaftH / 2
   shaft.castShadow = true
   shaft.receiveShadow = true
@@ -298,14 +280,14 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
 
   // First setback
   const sb1H = bodyH * 0.10
-  const sb1 = new THREE.Mesh(new THREE.BoxGeometry(0.54, sb1H, 0.54), glassMat)
+  const sb1 = new THREE.Mesh(new THREE.BoxGeometry(0.54, sb1H, 0.54), makeGlass())
   sb1.position.y = podiumH + shaftH + sb1H / 2
   sb1.castShadow = true
   g.add(sb1)
 
   // Second setback
   const sb2H = bodyH * 0.06
-  const sb2 = new THREE.Mesh(new THREE.BoxGeometry(0.36, sb2H, 0.36), glassMat)
+  const sb2 = new THREE.Mesh(new THREE.BoxGeometry(0.36, sb2H, 0.36), makeGlass())
   sb2.position.y = podiumH + shaftH + sb1H + sb2H / 2
   sb2.castShadow = true
   g.add(sb2)
@@ -341,6 +323,10 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
     band.position.y = podiumH + 0.09 + b * 0.18
     g.add(band)
   }
+
+  // Disable frustum culling — bounding sphere at origin doesn't cover full height
+  g.frustumCulled = false
+  g.traverse((c) => { c.frustumCulled = false })
 
   return g
 }
@@ -445,6 +431,14 @@ function buildBuilding(
     group.add(light)
   }
 
+  // Tall buildings (tier 4+) have large vertical extent — their bounding sphere
+  // origin is at y=0 but meshes reach far up, causing incorrect frustum culling.
+  // Disable culling on the group and all children to fix disappearing buildings.
+  if (tier >= 4) {
+    group.frustumCulled = false
+    group.traverse((child) => { child.frustumCulled = false })
+  }
+
   group.position.set(x, 0, z)
   return group
 }
@@ -485,6 +479,16 @@ function buildTerrainChunk(
       mesh.position.set(x, 0, z)
       mesh.receiveShadow = true
       chunk.add(mesh)
+      // Fill empty grass tiles in origin chunk with varied decorative buildings
+      if (isOrigin) {
+        const h = Math.abs(x * 2654435761 + z * 1234567891) % 100
+        const decoTier: Tier =
+          h < 30 ? 1 :
+          h < 55 ? 2 :
+          h < 75 ? 3 :
+          h < 90 ? 4 : 5
+        chunk.add(buildBuilding(undefined, x, z, decoTier))
+      }
     } else if (tile.type === 'house') {
       if (isOrigin) {
         const count = tile.commit?.commitCount ?? 1
@@ -497,8 +501,15 @@ function buildTerrainChunk(
         }
         chunk.add(building)
       } else {
-        // Decorative — random tier 1–2 for surrounding chunks
-        const decoTier: Tier = ((Math.abs(x * 3 + z * 7)) % 3 === 0) ? 2 : 1
+        // Decorative — use all tiers with weighted distribution
+        // so the surrounding town looks varied with towers and skyscrapers too
+        const h = Math.abs(x * 2654435761 + z * 1234567891) % 100
+        const decoTier: Tier =
+          h < 30 ? 1 :   // 30% cottages
+          h < 55 ? 2 :   // 25% houses
+          h < 75 ? 3 :   // 20% mansions
+          h < 90 ? 4 :   // 15% towers
+                   5     // 10% skyscrapers
         chunk.add(buildBuilding(undefined, x, z, decoTier))
       }
     }
@@ -680,26 +691,41 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     }
     window.addEventListener('resize', onResize)
 
+    // ── Pre-collect animatable objects (no per-frame traverse) ──
+    type WinEntry  = { mat: THREE.MeshStandardMaterial; seed: number }
+    type BeaconEntry = { mat: THREE.MeshStandardMaterial; seed: number }
+    type LightEntry  = { light: THREE.PointLight; seed: number }
+
+    const winMeshes: WinEntry[] = []
+    const beaconMeshes: BeaconEntry[] = []
+    const pointLights: LightEntry[] = []
+
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh && obj.material instanceof THREE.MeshStandardMaterial) {
+        if (obj.userData.animWindow)  winMeshes.push({ mat: obj.material, seed: obj.id * 0.3 })
+        if (obj.userData.animBeacon)  beaconMeshes.push({ mat: obj.material, seed: obj.id })
+      }
+      if (obj instanceof THREE.PointLight) {
+        pointLights.push({ light: obj, seed: obj.id * 0.7 })
+      }
+    })
+
     // ── Animation loop ──
     const clock = new THREE.Clock()
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate)
       const t = clock.getElapsedTime()
-      scene.traverse((obj) => {
-        if (obj instanceof THREE.Mesh && obj.material instanceof THREE.MeshStandardMaterial) {
-          // Window flicker — tagged at build time, never reads back emissiveIntensity
-          if (obj.userData.animWindow) {
-            obj.material.emissiveIntensity = 1.7 + Math.sin(t * 3.1 + obj.id * 0.3) * 0.35
-          }
-          // Beacon blink — separate flag, independent of window flicker
-          if (obj.userData.animBeacon) {
-            obj.material.emissiveIntensity = Math.max(0, 2.5 + Math.sin(t * 1.8 + obj.id) * 2.4)
-          }
-        }
-        if (obj instanceof THREE.PointLight && obj.intensity > 0.3) {
-          obj.intensity = 0.65 + Math.sin(t * 4.2 + obj.id * 0.7) * 0.18
-        }
-      })
+
+      for (const { mat, seed } of winMeshes) {
+        mat.emissiveIntensity = 1.7 + Math.sin(t * 3.1 + seed) * 0.35
+      }
+      for (const { mat, seed } of beaconMeshes) {
+        mat.emissiveIntensity = Math.max(0.1, 2.5 + Math.sin(t * 1.8 + seed) * 2.4)
+      }
+      for (const { light, seed } of pointLights) {
+        light.intensity = 0.65 + Math.sin(t * 4.2 + seed) * 0.18
+      }
+
       renderer.render(scene, camera)
     }
     animate()
@@ -727,7 +753,7 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
 // ─── App ─────────────────────────────────────────────────────────────────────
 
 function App() {
-  const [grid, setGrid] = useState<Tile[]>(() => createDemoTown())
+  const [grid, setGrid] = useState<Tile[]>(() => createBaseTown())
   const [commits, setCommits] = useState<CommitInfo[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -772,7 +798,6 @@ function App() {
       const buildOrder = baseGrid.filter((t) => t.type === 'grass').map((t) => t.id)
       const nextGrid = createBaseTown()
 
-      // Use one tile per unique author (most recent commit), others also placed
       mapped.slice(0, buildOrder.length).forEach((commit, i) => {
         const idx = nextGrid.findIndex((t) => t.id === buildOrder[i])
         if (idx >= 0) nextGrid[idx] = { ...nextGrid[idx], type: 'house', commit }
