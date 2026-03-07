@@ -1,32 +1,13 @@
-:root {
-  font-family: 'Press Start 2P', system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', sans-serif;
-  line-height: 1.4;
-  font-weight: 400;
-  color: #f4ffe8;
-  background: radial-gradient(circle at top, #304b63 0, #050910 55%);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-*,
-*::before,
-*::after {
+/* index.css — global reset required for fullscreen Three.js */
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
-body {
+html, body, #root {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-#root {
+  padding: 0;
   width: 100%;
-}
-
-a {
-  color: inherit;
+  height: 100%;
+  overflow: hidden;
+  background: #0d0d1a;
 }

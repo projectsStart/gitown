@@ -49,6 +49,15 @@ Each **commit** becomes a **house** in the town, and contributors can explore wh
 
 Once the PR is merged (or commits land on the default branch), your commits will be picked up by the app and **new houses will appear** in the village.
 
+### Bot / agent commits
+
+- The repo includes a very small GitHub Actions workflow at `.github/workflows/gitown-agent.yml`.
+- When you run it manually from the **Actions** tab, it:
+  - Appends a timestamped line to `agent-log.md`.
+  - Commits the change as `gitown-bot`.
+  - Pushes the commit back to the repo using the built-in `GITHUB_TOKEN`.
+- These bot commits appear in the town exactly like human commits (each one can create a new house).
+
 ## Running the project locally
 
 - **Install dependencies**
