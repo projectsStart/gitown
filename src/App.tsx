@@ -67,7 +67,6 @@ const baseGrid: Tile[] = createBaseTown()
 // ─── Building builders by tier ────────────────────────────────────────────────
 
 function buildCottage(hash: number, bodyH: number): THREE.Group {
-  // Tier 1 — small stone cottage, single gabled roof
   const g = new THREE.Group()
   const wallColor = new THREE.Color().setHSL(0.08 + (hash % 4) * 0.02, 0.22, 0.30 + (hash % 4) * 0.03)
 
@@ -94,7 +93,6 @@ function buildCottage(hash: number, bodyH: number): THREE.Group {
 }
 
 function buildHouseT2(hash: number, bodyH: number): THREE.Group {
-  // Tier 2 — standard house with chimney
   const g = new THREE.Group()
   const wallColor = new THREE.Color().setHSL(0.07 + (hash % 6) * 0.02, 0.28, 0.32 + (hash % 5) * 0.04)
 
@@ -117,7 +115,6 @@ function buildHouseT2(hash: number, bodyH: number): THREE.Group {
   roof.castShadow = true
   g.add(roof)
 
-  // Chimney
   const chimney = new THREE.Mesh(
     new THREE.BoxGeometry(0.1, 0.35, 0.1),
     new THREE.MeshStandardMaterial({ color: 0x2a1a1a, roughness: 0.95 }),
@@ -130,19 +127,16 @@ function buildHouseT2(hash: number, bodyH: number): THREE.Group {
 }
 
 function buildMansion(hash: number, bodyH: number): THREE.Group {
-  // Tier 3 — wider mansion with side wings and multiple windows
   const g = new THREE.Group()
   const wallColor = new THREE.Color().setHSL(0.09 + (hash % 4) * 0.02, 0.25, 0.35 + (hash % 4) * 0.03)
   const wallMat = new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.8 })
 
-  // Main body (wider)
   const body = new THREE.Mesh(new THREE.BoxGeometry(0.88, bodyH, 0.88), wallMat)
   body.position.y = bodyH / 2
   body.castShadow = true
   body.receiveShadow = true
   g.add(body)
 
-  // Left wing
   const wingMat = new THREE.MeshStandardMaterial({
     color: new THREE.Color().setHSL(0.09 + (hash % 4) * 0.02, 0.22, 0.30),
     roughness: 0.85,
@@ -160,7 +154,6 @@ function buildMansion(hash: number, bodyH: number): THREE.Group {
   wingR.receiveShadow = true
   g.add(wingR)
 
-  // Main roof
   const roofH = 0.6
   const roof = new THREE.Mesh(
     new THREE.ConeGeometry(0.72, roofH, 4),
@@ -171,7 +164,6 @@ function buildMansion(hash: number, bodyH: number): THREE.Group {
   roof.castShadow = true
   g.add(roof)
 
-  // Wing roofs (flat hip)
   const wingRoofMat = new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(0.64, 0.5, 0.13), roughness: 0.9 })
   const wRL = new THREE.Mesh(new THREE.ConeGeometry(0.27, 0.3, 4), wingRoofMat)
   wRL.position.set(-0.62, wingH + 0.15, 0)
@@ -189,19 +181,16 @@ function buildMansion(hash: number, bodyH: number): THREE.Group {
 }
 
 function buildTower(hash: number, bodyH: number): THREE.Group {
-  // Tier 4 — medieval tower / tall building with battlements
   const g = new THREE.Group()
   const wallColor = new THREE.Color().setHSL(0.62 + (hash % 4) * 0.03, 0.15, 0.28 + (hash % 4) * 0.03)
   const wallMat = new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.88 })
 
-  // Main tall tower
   const body = new THREE.Mesh(new THREE.BoxGeometry(0.72, bodyH, 0.72), wallMat)
   body.position.y = bodyH / 2
   body.castShadow = true
   body.receiveShadow = true
   g.add(body)
 
-  // Battlement row (4 merlons)
   const merlon = new THREE.BoxGeometry(0.14, 0.18, 0.14)
   const merlonMat = new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.9 })
   const merlonPositions = [
@@ -214,7 +203,6 @@ function buildTower(hash: number, bodyH: number): THREE.Group {
     g.add(m)
   })
 
-  // Pointed spire
   const spireH = 0.8 + (hash % 3) * 0.15
   const spire = new THREE.Mesh(
     new THREE.ConeGeometry(0.25, spireH, 8),
@@ -224,7 +212,6 @@ function buildTower(hash: number, bodyH: number): THREE.Group {
   spire.castShadow = true
   g.add(spire)
 
-  // Attached smaller turret
   const turretH = bodyH * 0.6
   const turret = new THREE.Mesh(
     new THREE.CylinderGeometry(0.18, 0.18, turretH, 8),
@@ -250,10 +237,8 @@ function buildTower(hash: number, bodyH: number): THREE.Group {
 }
 
 function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
-  // Tier 5 — glass skyscraper with setbacks and antenna
   const g = new THREE.Group()
 
-  // Dark glass tones — blue/teal
   const glassColor = new THREE.Color().setHSL(0.58 + (hash % 5) * 0.03, 0.45, 0.22 + (hash % 4) * 0.04)
   const makeGlass = () => new THREE.MeshStandardMaterial({
     color: glassColor,
@@ -262,7 +247,6 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
   })
   const makeConcrete = () => new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.85, metalness: 0.1 })
 
-  // Base podium (wide)
   const podiumH = bodyH * 0.12
   const podium = new THREE.Mesh(new THREE.BoxGeometry(0.92, podiumH, 0.92), makeConcrete())
   podium.position.y = podiumH / 2
@@ -270,7 +254,6 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
   podium.receiveShadow = true
   g.add(podium)
 
-  // Main shaft (narrower, very tall)
   const shaftH = bodyH * 0.72
   const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.72, shaftH, 0.72), makeGlass())
   shaft.position.y = podiumH + shaftH / 2
@@ -278,14 +261,12 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
   shaft.receiveShadow = true
   g.add(shaft)
 
-  // First setback
   const sb1H = bodyH * 0.10
   const sb1 = new THREE.Mesh(new THREE.BoxGeometry(0.54, sb1H, 0.54), makeGlass())
   sb1.position.y = podiumH + shaftH + sb1H / 2
   sb1.castShadow = true
   g.add(sb1)
 
-  // Second setback
   const sb2H = bodyH * 0.06
   const sb2 = new THREE.Mesh(new THREE.BoxGeometry(0.36, sb2H, 0.36), makeGlass())
   sb2.position.y = podiumH + shaftH + sb1H + sb2H / 2
@@ -294,7 +275,6 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
 
   const topY = podiumH + shaftH + sb1H + sb2H
 
-  // Antenna mast
   const antennaH = bodyH * 0.18
   const antenna = new THREE.Mesh(
     new THREE.CylinderGeometry(0.025, 0.025, antennaH, 6),
@@ -304,7 +284,6 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
   antenna.castShadow = true
   g.add(antenna)
 
-  // Blinking red light at top of antenna
   const beaconMat = new THREE.MeshStandardMaterial({
     color: 0xff2200,
     emissive: new THREE.Color(0xff2200),
@@ -315,7 +294,6 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
   beacon.userData.animBeacon = true
   g.add(beacon)
 
-  // Window grid lines — horizontal bands
   const bandMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.9 })
   const bands = Math.floor(shaftH / 0.18)
   for (let b = 0; b < bands; b++) {
@@ -324,7 +302,6 @@ function buildSkyscraper(hash: number, bodyH: number): THREE.Group {
     g.add(band)
   }
 
-  // Disable frustum culling — bounding sphere at origin doesn't cover full height
   g.frustumCulled = false
   g.traverse((c) => { c.frustumCulled = false })
 
@@ -344,13 +321,12 @@ function buildBuilding(
     ? (commit.sha.charCodeAt(0) * 31 + commit.sha.charCodeAt(1))
     : Math.abs(x * 7 + z * 13 + x * z)
 
-  // Body height scales dramatically with tier
   const BASE_HEIGHTS: Record<Tier, number> = {
-    1: 0.65 + (hash % 3) * 0.08,   // 0.65–0.89
-    2: 0.90 + (hash % 4) * 0.10,   // 0.90–1.20
-    3: 1.40 + (hash % 4) * 0.15,   // 1.40–1.85
-    4: 2.40 + (hash % 4) * 0.30,   // 2.40–3.30
-    5: 4.50 + (hash % 5) * 0.60,   // 4.50–6.90
+    1: 0.65 + (hash % 3) * 0.08,
+    2: 0.90 + (hash % 4) * 0.10,
+    3: 1.40 + (hash % 4) * 0.15,
+    4: 2.40 + (hash % 4) * 0.30,
+    5: 4.50 + (hash % 5) * 0.60,
   }
   const bodyH = BASE_HEIGHTS[tier]
 
@@ -364,8 +340,6 @@ function buildBuilding(
   }
   group.add(interior)
 
-  // ── Windows ──
-  // Tiers 1–3 get a warm glowing window on the front face
   if (tier <= 3) {
     const winMat = new THREE.MeshStandardMaterial({
       color: 0xffe88a,
@@ -378,14 +352,12 @@ function buildBuilding(
     if (commit) win.userData.animWindow = true
     group.add(win)
 
-    // Door
     const doorMat = new THREE.MeshStandardMaterial({ color: 0x1a0e08, roughness: 0.9 })
     const door = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.28, 0.04), doorMat)
     door.position.set(0, 0.14, tier === 1 ? 0.33 : 0.4)
     group.add(door)
   }
 
-  // Tiers 4–5 get many glowing windows scattered on all faces
   if (tier >= 4 && commit) {
     const winCount = tier === 4 ? 8 : 20
     const faceZ = tier === 4 ? 0.37 : 0.37
@@ -400,12 +372,10 @@ function buildBuilding(
     const yStep = bodyH / (winCount / 2 + 1)
     for (let w = 0; w < winCount / 2; w++) {
       const wy = yStart + w * yStep
-      // Front
       const wf = new THREE.Mesh(winGeo, winMat.clone())
       wf.position.set((hash % 3 === 0 ? -0.12 : 0.12), wy, faceZ)
       wf.userData.animWindow = true
       group.add(wf)
-      // Back
       const wb = new THREE.Mesh(winGeo, winMat.clone())
       wb.position.set((hash % 3 === 1 ? -0.12 : 0.12), wy + yStep * 0.5, -faceZ)
       wb.rotation.y = Math.PI
@@ -414,7 +384,6 @@ function buildBuilding(
     }
   }
 
-  // ── Point light ──
   if (commit) {
     const lightColors: Record<Tier, number> = {
       1: 0xffaa33,
@@ -431,9 +400,6 @@ function buildBuilding(
     group.add(light)
   }
 
-  // Tall buildings (tier 4+) have large vertical extent — their bounding sphere
-  // origin is at y=0 but meshes reach far up, causing incorrect frustum culling.
-  // Disable culling on the group and all children to fix disappearing buildings.
   if (tier >= 4) {
     group.frustumCulled = false
     group.traverse((child) => { child.frustumCulled = false })
@@ -479,7 +445,6 @@ function buildTerrainChunk(
       mesh.position.set(x, 0, z)
       mesh.receiveShadow = true
       chunk.add(mesh)
-      // Fill empty grass tiles in origin chunk with varied decorative buildings
       if (isOrigin) {
         const h = Math.abs(x * 2654435761 + z * 1234567891) % 100
         const decoTier: Tier =
@@ -501,15 +466,13 @@ function buildTerrainChunk(
         }
         chunk.add(building)
       } else {
-        // Decorative — use all tiers with weighted distribution
-        // so the surrounding town looks varied with towers and skyscrapers too
         const h = Math.abs(x * 2654435761 + z * 1234567891) % 100
         const decoTier: Tier =
-          h < 30 ? 1 :   // 30% cottages
-          h < 55 ? 2 :   // 25% houses
-          h < 75 ? 3 :   // 20% mansions
-          h < 90 ? 4 :   // 15% towers
-                   5     // 10% skyscrapers
+          h < 30 ? 1 :
+          h < 55 ? 2 :
+          h < 75 ? 3 :
+          h < 90 ? 4 :
+                   5
         chunk.add(buildBuilding(undefined, x, z, decoTier))
       }
     }
@@ -536,7 +499,6 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     const h = mount.clientHeight
     if (w === 0 || h === 0) return
 
-    // ── Renderer ──
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(w, h)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -546,12 +508,10 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     renderer.toneMappingExposure = 1.15
     mount.appendChild(renderer.domElement)
 
-    // ── Scene ──
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x0d0d1a)
     scene.fog = new THREE.Fog(0x0d0d1a, 35, 70)
 
-    // ── Isometric orthographic camera ──
     const aspect = w / h
     const frustum = frustumRef.current
     const camera = new THREE.OrthographicCamera(
@@ -571,7 +531,6 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     camera.position.copy(panTarget).add(camOffset)
     camera.lookAt(panTarget)
 
-    // ── Lighting ──
     scene.add(new THREE.AmbientLight(0x4050a0, 1.2))
 
     const sun = new THREE.DirectionalLight(0xfff0cc, 1.8)
@@ -591,7 +550,6 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     fill.position.set(12, 10, 12)
     scene.add(fill)
 
-    // ── Stars ──
     const starPos = new Float32Array(500 * 3)
     for (let i = 0; i < 500; i++) {
       starPos[i * 3 + 0] = (Math.random() - 0.5) * 150
@@ -602,7 +560,6 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3))
     scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.14 })))
 
-    // ── Moon ──
     const moon = new THREE.Mesh(
       new THREE.SphereGeometry(1.4, 20, 20),
       new THREE.MeshStandardMaterial({ color: 0xe8e0ff, emissive: new THREE.Color(0xbbaaff), emissiveIntensity: 0.6 }),
@@ -610,7 +567,6 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     moon.position.set(-22, 26, -20)
     scene.add(moon)
 
-    // ── Terrain ──
     const meshMap = new Map<THREE.Object3D, CommitInfo>()
     for (let tx = -TERRAIN_RADIUS; tx <= TERRAIN_RADIUS; tx++) {
       for (let tz = -TERRAIN_RADIUS; tz <= TERRAIN_RADIUS; tz++) {
@@ -618,7 +574,6 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
       }
     }
 
-    // ── Pan (XZ only) ──
     let isPanning = false
     let lastPtr = { x: 0, y: 0 }
 
@@ -691,8 +646,7 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
     }
     window.addEventListener('resize', onResize)
 
-    // ── Pre-collect animatable objects (no per-frame traverse) ──
-    type WinEntry  = { mat: THREE.MeshStandardMaterial; seed: number }
+    type WinEntry    = { mat: THREE.MeshStandardMaterial; seed: number }
     type BeaconEntry = { mat: THREE.MeshStandardMaterial; seed: number }
     type LightEntry  = { light: THREE.PointLight; seed: number }
 
@@ -710,7 +664,6 @@ function TownScene({ grid, onSelectCommit }: TownSceneProps) {
       }
     })
 
-    // ── Animation loop ──
     const clock = new THREE.Clock()
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate)
@@ -760,6 +713,7 @@ function App() {
   const [selectedCommit, setSelectedCommit] = useState<CommitInfo | null>(null)
   const [panelOpen, setPanelOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
+  const [agentOpen, setAgentOpen] = useState(false)   // ← NEW
 
   useEffect(() => { fetchCommits() }, [])
 
@@ -774,7 +728,6 @@ function App() {
       if (!res.ok) throw new Error(`GitHub error: ${res.status}`)
       const data = await res.json()
 
-      // Count commits per author
       const authorCounts = new Map<string, number>()
       data.forEach((item: any) => {
         const name = item.commit?.author?.name ?? item.author?.login ?? 'Unknown'
@@ -833,6 +786,15 @@ function App() {
       <div className="hud-social">
         <a href="https://x.com/Gitown_" target="_blank" rel="noreferrer" className="social-button social-x">X</a>
         <a href="https://github.com/projectsStart/gitown" target="_blank" rel="noreferrer" className="social-button social-git">GIT</a>
+        {/* Agent connect button */}
+        <button
+          type="button"
+          className="social-button social-agent"
+          onClick={() => setAgentOpen(true)}
+          title="Connect an agent"
+        >
+          AGENT
+        </button>
       </div>
 
       {/* Tier legend */}
@@ -846,7 +808,7 @@ function App() {
         ))}
       </div>
 
-      {/* About modal */}
+      {/* ── About modal ── */}
       {aboutOpen && (
         <div className="modal-overlay" onClick={() => setAboutOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -880,6 +842,78 @@ function App() {
               <div className="modal-section">
                 <h3 className="modal-section-title">Open source</h3>
                 <p>Gitown is fully open source. Fork it, embed it in your own project page, or contribute back at <a href="https://github.com/projectsStart/gitown" target="_blank" rel="noreferrer" className="modal-link">github.com/projectsStart/gitown</a>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Agent modal ── */}
+      {agentOpen && (
+        <div className="modal-overlay" onClick={() => setAgentOpen(false)}>
+          <div className="modal modal-agent" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <span className="modal-title">⬡ Connect an Agent</span>
+              <button className="modal-close" type="button" onClick={() => setAgentOpen(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-lead">
+                Any AI agent that supports the Model Context Protocol (MCP) can commit to Gitown and claim a building in the town.
+              </p>
+
+              <div className="modal-section">
+                <h3 className="modal-section-title">1 · Install the MCP server</h3>
+                <p>No installation needed — run it directly with npx:</p>
+                <pre className="modal-code">npx @projectsstart/gitown-mcp</pre>
+              </div>
+
+              <div className="modal-section">
+                <h3 className="modal-section-title">2 · Add it to your agent config</h3>
+                <p>Paste this into your <code>mcp_config.json</code> (OpenClaw, Claude Desktop, or any MCP client):</p>
+                <pre className="modal-code">{`{
+  "mcpServers": {
+    "gitown": {
+      "command": "npx",
+      "args": ["@projectsstart/gitown-mcp"],
+      "env": {
+        "GITOWN_GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    }
+  }
+}`}</pre>
+                <p>The token must be a GitHub Personal Access Token with <code>repo</code> permission.</p>
+              </div>
+
+              <div className="modal-section">
+                <h3 className="modal-section-title">3 · Available tools</h3>
+                <ul className="modal-tier-list">
+                  <li>
+                    <span className="tier-badge tier-3">commit_to_gitown</span>
+                    Creates a commit in the repo on behalf of the agent. Each commit grows the agent's building.
+                  </li>
+                  <li>
+                    <span className="tier-badge tier-2">get_town_status</span>
+                    Returns the current leaderboard — who has what building tier and how many commits.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="modal-section">
+                <h3 className="modal-section-title">Building tiers</h3>
+                <ul className="modal-tier-list">
+                  <li><span className="tier-badge tier-1">Cottage</span> 1–2 commits</li>
+                  <li><span className="tier-badge tier-2">House</span> 3–6 commits</li>
+                  <li><span className="tier-badge tier-3">Mansion</span> 7–14 commits</li>
+                  <li><span className="tier-badge tier-4">Tower</span> 15–29 commits</li>
+                  <li><span className="tier-badge tier-5">Skyscraper</span> 30+ commits</li>
+                </ul>
+              </div>
+
+              <div className="modal-section">
+                <h3 className="modal-section-title">Source & docs</h3>
+                <p>
+                  <a href="https://github.com/projectsStart/gitown-mcp" target="_blank" rel="noreferrer" className="modal-link">github.com/projectsStart/gitown-mcp</a>
+                </p>
               </div>
             </div>
           </div>
